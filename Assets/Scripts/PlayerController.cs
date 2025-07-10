@@ -55,26 +55,26 @@ public class PlayerController : MonoBehaviour
                     enemies[i].TakeDamage(damage);
                 }
                 break;
-            case 2:
-                int j = 0;
-                while (j < enemies.Count)
+            //case 2:
+                //int j = 0;
+               // while (j < enemies.Count)
                 {
-                    enemies[j].TakeDamage(damage);
-                    j++
+                //    enemies[j].TakeDamage(damage);
+                //    j++
                 }
-                break;
-            case 3: 
-                if(enemies.Count >0)
+               // break;
+           // case 3: 
+              //  if(enemies.Count >0)
                 {
-                    int k = 0;
-                    do
+                 ///   int k = 0;
+                  //  do
                     {
-                        enemies[k].TakeDamage(damage);
-                        k++
+                   //     enemies[k].TakeDamage(damage);
+                   //     k++
                     }
-                    while (k < enemies.Count);
+                  //  while (k < enemies.Count);
                 }
-                break;
+              //  break;
         }
     }
 
