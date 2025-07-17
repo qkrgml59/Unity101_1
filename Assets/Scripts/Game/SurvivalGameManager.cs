@@ -8,12 +8,30 @@ public class SurvivalGameManager : MonoBehaviour
     [Header("그룹 구성원 템플릿")]
     public GroupMemberSO[] groupMembers;
 
+    [Header("아이템 템플릿")]
+    public ItemSO foodItem;              //음식 아이템SO
+    public ItemSO fuelItem;              //연료 아이템SO
+    public ItemSO medicineItem;         //의약품 아이템SO
+
     [Header("참조 UI")]
     public Text dayText;                                //날짜 표시 UI
     public Text[] memberStatusTexts;                    //맴버 상태 표시 UI
     public Button nextDayButton;                        //다음 날 버튼
+    public Text inventoryText;                          //인벤토리 표시
 
-    int currentDay;                                    //현재 날짜
+
+    [Header("아이템 버튼")]
+    public Button feedButton;         //음식 주기
+    public Button heatButton;         //난방 하기
+    public Button healButton;         //치료 하기
+
+    [Header("게임 상태")]
+    int currentDay;                          //현재 날짜
+    public int food = 5;                     //음식 개수
+    public int fuel = 3;                     //연료 개수
+    public int medicine = 4;                // 의약품 개수
+
+    
 
     //런타임 데이터
     private int[] memberHealth;
@@ -24,10 +42,17 @@ public class SurvivalGameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         currentDay = 1;
+
+
         InitializeGroup();
         UpdateUI();
+
         nextDayButton.onClick.AddListener(NextDay);         //다음 날 버튼 클릭 시 NextDay 함수 호출
+        feedButton.onClick.AddListener(UseFoodItem);       
+        healButton.onClick.AddListener(UseMedicItem); 
+        heatButton.onClick.AddListener(UseFuelItem);       
     }
 
     void InitializeGroup()
@@ -51,6 +76,10 @@ public class SurvivalGameManager : MonoBehaviour
     void UpdateUI()
     {
         dayText.text = $"Day{currentDay}";
+
+        inventoryText.text = $"음식   : {food}개\n" +
+                             $"연료   : {fuel}개\n" +
+                             $"의약품 : {medicine}개\n";
 
         for (int i =0; i < groupMembers.Length; i++)
         {
@@ -161,6 +190,68 @@ public class SurvivalGameManager : MonoBehaviour
         else
             text.color = Color.white;
     }
+
+    public void UseFoodItem()                                         //음식 아이템 사용
+    {
+        if (food <= 0 || foodItem == null) return;                   //오류 방지 처리
+
+        food--;
+        UseItemOnAllMembers(foodItem);
+        UpdateUI();
+    }
+
+    public void UseFuelItem()                                         //음식 아이템 사용
+    {
+        if (fuel <= 0 || fuelItem == null) return;                   //오류 방지 처리
+
+        fuel--;
+        UseItemOnAllMembers(fuelItem);
+        UpdateUI();
+    }
+
+    public void UseMedicItem()                                         //음식 아이템 사용
+    {
+        if (medicine <= 0 || foodItem == null) return;                   //오류 방지 처리
+
+        medicine--;
+        UseItemOnAllMembers(medicineItem);
+        UpdateUI();
+    }
+
+    void UseItemOnAllMembers(ItemSO item)
+    {
+        for (int i = 0; i < groupMembers.Length; i++)
+        {
+            if (groupMembers[i] != null && memberHealth[i] > 0)                    //살아있는 가족만
+            {
+                ApplyItemEffect(i, item);
+            }
+        }
+    }
+
+
+    void ApplyItemEffect(int memberIndex, ItemSO item)
+    {
+        GroupMemberSO member = groupMembers[memberIndex];
+
+        //개인 특성 적용해서 아이템 효과 계산
+        int actualHealth = Mathf.RoundToInt(item.healthEffect * member.recoveryRate);
+        int actualHunger = Mathf.RoundToInt(item.hungerEffect * member.foodEfficiency);
+        int actualTemp = item.tempEffect;
+
+        //효과 적용
+        memberHealth[memberIndex] += actualHealth;
+        memberHunger[memberIndex] += actualHunger;
+        memberBodyTemp[memberIndex] += actualTemp;
+
+        //최대치 제한
+        memberHealth[memberIndex] = Mathf.Min(memberHealth[memberIndex], member.maxHealth);
+        memberHealth[memberIndex] = Mathf.Min(memberHunger[memberIndex], member.maxHunger);
+        memberBodyTemp[memberIndex] = Mathf.Min(memberBodyTemp[memberIndex], member.normalBodyTemp);
+
+    }
+
+
     // Update is called once per frame
     void Update()
     {
