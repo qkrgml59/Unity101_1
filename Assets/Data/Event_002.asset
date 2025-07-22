@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04438965ad69a37428f6fc3c3be334d6, type: 3}
+  m_Name: Event_002
+  m_EditorClassIdentifier: 
+  eventTitel: "\uBCF4\uAE09\uD488 \uC9C0\uC6D0"
+  eventDescription: "\uC815\uBD80\uAC00 \uBCF4\uAE09\uD488\uC744 \uC9C0\uC6D0\uD588\uC2B5\uB2C8\uB2E4."
+  foodChange: 5
+  fuelChange: 5
+  medicineChange: 5
+  healthChange: 0
+  hungerChange: 0
+  tempChange: 0
+  probability: 25
