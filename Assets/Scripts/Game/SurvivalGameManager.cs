@@ -48,9 +48,9 @@ public class SurvivalGameManager : MonoBehaviour
 
 
     //런타임 데이터
-    private int[] memberHealth;
-    private int[] memberHunger;
-    private int[] memberBodyTemp;
+    public int[] memberHealth;
+    public int[] memberHunger;
+    public int[] memberBodyTemp;
 
 
     // Start is called before the first frame update
@@ -106,7 +106,7 @@ public class SurvivalGameManager : MonoBehaviour
         }
     }
 
-    void UpdateUI()
+    public void UpdateUI()
     {
         dayText.text = $"Day{currentDay}";
 
