@@ -27,7 +27,7 @@ public class VenchingMachineManager : MonoBehaviour
     [Header("플레이어 돈 템플릿")]
     public PlayerMoneySO[] gold;             //화폐 종류
     public PlayerMoneySO[] count;          //화폐 갯수
-    //public PlayerMoneySO[] goldtype;        //화폐 종류  이걸 왜 넣었을까 희연이는...
+    //public PlayerMoneySO[] goldtype;        //화폐 종류  이걸 왜 넣었을까 희연이는... 이걸 넣어도 의미가 없었을텐데
 
     public int insertedMoney = 0;            //자판기에 투입 된 총 금액
 
@@ -43,19 +43,13 @@ public class VenchingMachineManager : MonoBehaviour
     {
         UpdateUI();
 
+
         for (int i = 0; i < drinkButton.Length; i++)
         {
-            int drinksindex = i; // 꼭 지역 변수로 저장! (클로저 문제 방지)
+            int drinksindex = i; // 문제 방지
             drinkButton[i].onClick.AddListener(() => BuyDrink(drinksindex));
 
-            if (drinksPriceText[i] == null)
-            {
-                Debug.LogWarning($"priceText[{i}] is null!");
-            }
-            else
-            {
-                drinksPriceText[i].text = Drinks[i].name + "\n" + Drinks[i].price + "원";
-            }
+            
         }
 
         // => 수정 전  for (int i = 0; i < drinksButton.Length && i < gold.LongLength; i++)
@@ -76,9 +70,13 @@ public class VenchingMachineManager : MonoBehaviour
         //위에 코드 참고해서 내가 적었음! 맞는 거 같다!
         //람다식을 사용해서 복잡한 코드가 정리되는 거 같아서 눈으로 보기는 좋다.
         //처음에 막 적은 내 코드를 보다가 지피티가 수정해주면서 혼자 해나가니까 좀 머리속에 더 들어오는 느낌
-        //교수님 코드 보면서 천천히 하려하니까 한계가 좀 있긴 했는데 몇개는 수정 안 했던 코드들이 있어서 기분은 좋았다.
+        //교수님 코드 보면서 천천히 하려하니까 한계가 좀 있긴 했는데 몇개는 수정 안 했던 코드들이 있었다
+        //근데 진짜 함수 너무 많이 만들 필요가 없었네
+        //팀플 코드도 데이터로 정리했으면 더 깔끔했을 듯
 
     }
+
+  
 
     public void InsertGold(int goldIndex)
     {
@@ -95,6 +93,7 @@ public class VenchingMachineManager : MonoBehaviour
 
 
         if (goldIndex < 0 || count[goldIndex] == null) return;
+       
         if (count[goldIndex].count <= 0) return;                    //금액 누적
 
         insertedMoney += gold[goldIndex].gold;                    //금액 누적
@@ -122,10 +121,12 @@ public class VenchingMachineManager : MonoBehaviour
             insertedMoney -= drink.price; //투입된 금액에서 음료 가격 차감
 
 
-            if (insertedMoney > 0)
+            if (insertedMoney > 0)      //투입된 금액이 0보다 크면
             {
                 if (changeText != null)
                     changeText.text = $"거스름 돈 : {insertedMoney}원"; //거스름돈 UI 업데이트
+
+                InventortyGold(insertedMoney); // 변경된 금액을 다시 인벤토리로
 
                 insertedMoney = 0;
             }
@@ -139,7 +140,7 @@ public class VenchingMachineManager : MonoBehaviour
         else
         {
             // 금액이 부족하면 구매 실패
-            Debug.Log("금액 부족! 구매 실패");
+            
 
             if (changeText != null)
                 changeText.text = "금액이 부족합니다!";
@@ -152,10 +153,28 @@ public class VenchingMachineManager : MonoBehaviour
         //골드를 차감해야함.               // 골드를 음료 가격을 데이터로 확인해 차감함
 
         // 이전 코드 = goldIndex -= drink.price; -> 인덱스 값을 줄이는게 아님 근데 난 인덱스 값을 줄였음...
+        //그냥 무조건 투입만 되게 해서 돈이 없어도 사졌음... 
+        //돈이 찼는지 안 찼는지 확실하게 해주는 코드를 안 적었음.
     }
 
+    void InventortyGold(int changeAmount)     //거스름돈을 인벤에 주는 함수
+    {
+        for (int i = gold.Length - 1; i >= 0; i--)   //큰 금액부터 나눠서 줌
+        {
+            int denom = gold[i].gold;               // 현재 화폐 단위
+            int countToAdd = changeAmount / denom;       // 거스름돈을 현재 화폐 단위로 몇 개 줄 수 있는지 계산
 
-
+            if (countToAdd > 0)
+            {
+                count[i].count += countToAdd;          //플레이어 인벤토리에 금액 추가
+                changeAmount -= countToAdd * denom;     // 남은 거스름돈 계산
+            } 
+        }
+    }
+    //계산하는 식을 좀 더 연습해야 할 거 같다. 
+    //이전 코드 => for (int i = 0; i < gold.Length; i++)
+    // int gold = gold[i].gold; // 현재 화폐 단위
+    //여기서 막혔음...  
 
     public void UseGold(int goldIndex)               //골드 사용
     {
@@ -165,7 +184,8 @@ public class VenchingMachineManager : MonoBehaviour
 
 
         //if (goldIndex <= 0 || Gold500 == null) return;
-        //if (goldIndex <= 0 || Gold1000 == null) return;
+        //if (goldIndex <= 0 || Gold1000 == null) return;   이전엔 돈들도 따로따로 했었음 
+        // 이러면 PlayerMoneySO를 사용한 이유가 없다. 애초에 코드에서 따로 뒀는데 
 
         PlayerMoneySO playerMoney = gold[goldIndex];
 
@@ -189,20 +209,28 @@ public class VenchingMachineManager : MonoBehaviour
             if (gold[i] != null)
             {
                 inventoryText.text += $"{gold[i].goldName} : {count[i].count}개\n";
-                insertMoney.text += $"{gold[i].gold}원 투입됨\n";
+
+                
+                // 이전 코드 =>insertMoney.text += $"{gold[i].gold}원 투입됨\n";
+                //골드 데이터 자체를 계속 띄워둠 
             }
+
+           
+            // insertMoney.text = $"총 투입 금액 : {insertMoney}원"; // 이 코드 if문 앞에 둬서 UI가 이상하게 됐음
+            //엥 아니 바본가아래 써져있는데 왜 또 썼지
+
         }
 
         insertMoney.text += $"\n총 투입 금액: {insertedMoney}원";
 
         // 음료 가격 UI 업데이트
-        for (int i = 0; i < Drinks.Length && i < drinksPriceText.Length; i++)
+        for (int i = 0; i < drinksPriceText.Length; i++)
         {
-            if (Drinks[i] != null && drinksPriceText[i] != null)
-            {
-                drinksPriceText[i].text = $"{Drinks[i].name}\n{Drinks[i].price} 원";
-            }
+            drinksPriceText[i].text = $"{Drinks[i].price} 원"; // 음료 가격 초기화
+            //스타트에 적으니까 초기화가 안 되는 것 같다고 함
+            // 어쩐지 가격이 안 나오더라
         }
+
 
         //오류났음. for (int i = 0; i < goldName.Length; i++)인데, Drinks[i], drinksPriceText[i] 접근할 때
         //Drinks.Length나 drinksPriceText.Length가 goldName.Length보다 짧으면 발생함.  두 UI를 다르게 해야하는데 
